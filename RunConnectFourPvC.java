@@ -16,7 +16,7 @@ public class RunConnectFourPvC{
             if(count%2+1==human){
                 System.out.println("What is your move?");
                 move = input.nextInt();
-                while(!game.drop(count%2+1,move -1)){ // "- 1" makes cols go from 1-6 instead of 0-5
+                while(!game.drop(count%2+1,move -1)){ // "- 1" makes cols go from 1-7 instead of 0-6
                   System.out.println("Please try again.");
                   move = input.nextInt();
                 }
