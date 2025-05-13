@@ -66,10 +66,10 @@ public class RunConnectFourCvC{
             if (winner == human)
             {
                 engineWins++;
-            } else if (winner == -1) {
-                ties++;
-            } else {
+            } else if (winner == human % 2 + 1) {
                 opponentWins++;
+            } else {
+                ties++;
             }
 
             win = false;
