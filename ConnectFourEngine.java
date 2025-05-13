@@ -61,7 +61,7 @@ public class ConnectFourEngine {
             return possibleMoves.get((int)(Math.random() * possibleMoves.size())); // return random move from possibleMoves
         }
 
-        return (int)(Math.random() * 6) + 1; // return random move if every move gives opponent a chance
+        return -1; // give up and return invalid move if every move gives opponent a chance
     }
 
     private static int checkPossibleWin(int[][] gameBoard, int player)
