@@ -49,9 +49,25 @@ public class ConnectFourEngine {
 
         for (int i = 0; i < possibleMoves.size(); i++) // check if any possible move gives engine a chance
         {
-            if (moveGivesChance(gameBoard, engineNumber, engineNumber, possibleMoves.get(i)))
+            if (moveCausesDoubleWin(gameBoard, engineNumber, i)) // possible double win opportunity
             {
                 return possibleMoves.get(i);
+            }
+
+            if (moveGivesChance(gameBoard, engineNumber, engineNumber, possibleMoves.get(i))) // possible single move opportunity
+            {
+                return possibleMoves.get(i);
+            }
+        }
+
+        for (int i = 0; i < 7; i++) // check if opponent can make a double move opportunity (block if so)
+        {
+            if (moveCausesDoubleWin(gameBoard, opponentNumber, i))
+            {
+                if (possibleMoves.contains(i))
+                {
+                    return i;
+                }
             }
         }
 
@@ -176,6 +192,55 @@ public class ConnectFourEngine {
         }
 
         return false;
+    }
+
+    private static boolean moveCausesDoubleWin(int[][] gameBoard, int player, int col)
+    {
+        int initialWins = numberWins(gameBoard, player);
+
+        int[][] gameBoardCopy = copyGameBoard(gameBoard);
+
+        if (dropPiece(gameBoardCopy, player, col))
+        {
+            if (numberWins(gameBoardCopy, player) - initialWins >= 2)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int numberWins(int[][] gameBoard, int player)
+    {
+        int horizontal = CPWHorizontal(gameBoard, player);
+        int vertical = CPWVertical(gameBoard, player);
+        int positive = CPWPositive(gameBoard, player);
+        int negative = CPWNegative(gameBoard, player);
+
+        int winSpots = 0;
+        
+        if (horizontal != -1)
+        {
+            winSpots++;
+        }
+
+        if (vertical != -1)
+        {
+            winSpots++;
+        }
+
+        if (positive != -1)
+        {
+            winSpots++;
+        }
+
+        if (negative != -1)
+        {
+            winSpots++;
+        }
+
+        return winSpots;
     }
 
     // check possible win functions

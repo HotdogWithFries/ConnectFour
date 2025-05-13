@@ -11,6 +11,8 @@ public class RunConnectFourCvC{
         int simulations = input.nextInt();
         System.out.println("Print moves?");
         boolean printMoves = input.nextBoolean();
+        System.out.println("Stop at engine loss?");
+        boolean stopAtEngineLoss = input.nextBoolean();
 
         int engineWins = 0;
         int opponentWins = 0;
@@ -52,6 +54,12 @@ public class RunConnectFourCvC{
                 }
                 winner = game.determineWin();
                 win = winner != 0;
+
+                if (stopAtEngineLoss && winner == human % 2 + 1)
+                {
+                    i = simulations;
+                    break;
+                }
             }
 
             if (printMoves)
