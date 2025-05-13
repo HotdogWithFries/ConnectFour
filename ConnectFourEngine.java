@@ -12,13 +12,17 @@ public class ConnectFourEngine {
 
         if (engineWin != -1) // check if engine can win on this move 
         {
+            //System.out.println(1 + " - " + engineWin);
             return engineWin;
         }
 
         if (opponentWin != -1) // check if opponent can win on their next move (block if so)
         {
+            //System.out.println(2 + " - " + opponentWin);
             return opponentWin;
         }
+
+        //System.out.println(3);
 
         int engineDouble = checkPossibleDouble(gameBoard, engineNumber);
         int opponentDouble = checkPossibleDouble(gameBoard, opponentNumber);
@@ -217,7 +221,6 @@ public class ConnectFourEngine {
     private static int CPWVertical(int[][] gameBoard, int player)
     {
         int count = 0;
-
         for (int i = 0; i < 7; i++)
         {
             for (int j = 5; j >= 0; j--)
@@ -237,6 +240,8 @@ public class ConnectFourEngine {
                     }
                 }
             }
+
+            count = 0;
         }
 
         return -1;
