@@ -24,43 +24,47 @@ public class ConnectFourEngine {
 
         //System.out.println(3);
 
-        int engineDouble = checkPossibleDouble(gameBoard, engineNumber);
-        int opponentDouble = checkPossibleDouble(gameBoard, opponentNumber);
-
-        if (opponentDouble != -1) // check if opponent can make a double (two-sided connect four) on next move (block if so)
-        {
-            return opponentDouble;
-        }
-
         ArrayList<Integer> possibleMoves = new ArrayList<Integer>(); // list to hold moves that don't give opponent a chance
 
-        for (int i = 0; i < 7; i++) // check what moves don't give opponent a chance and are in bounds
+        for (int i = 0; i < 7; i++) // check what moves don't give opponent a win chance and are in bounds
         {
-            if (!moveGivesChance(gameBoard, engineNumber, opponentNumber, i) && gameBoard[0][i] == 0)
+            if (!moveGivesWinChance(gameBoard, engineNumber, opponentNumber, i) && gameBoard[0][i] == 0)
             {
                 possibleMoves.add(i);
             }
         }
 
-        if (engineDouble!= -1 && possibleMoves.contains(engineDouble)) // check if the engine can make a double and if so, make the move as long as it doesn't give opponent a chance to win
+        int engineDouble = checkPossibleDouble(gameBoard, engineNumber);
+        int opponentDouble = checkPossibleDouble(gameBoard, opponentNumber);
+
+        if (engineDouble != -1 && possibleMoves.contains(engineDouble)) // check if the engine can make a double (same directions) and if so, make the move as long as it doesn't give opponent a chance to win
         {
             return engineDouble;
         }
 
-        for (int i = 0; i < possibleMoves.size(); i++) // check if any possible move gives engine a chance
+        for (int i = 0; i < possibleMoves.size(); i++) // check if any possible move gives engine a double win opportunity (different directions)
         {
-            if (moveCausesDoubleWin(gameBoard, engineNumber, i)) // possible double win opportunity
-            {
-                return possibleMoves.get(i);
-            }
-
-            if (moveGivesChance(gameBoard, engineNumber, engineNumber, possibleMoves.get(i))) // possible single move opportunity
+            if (moveCausesDoubleWin(gameBoard, engineNumber, i))
             {
                 return possibleMoves.get(i);
             }
         }
 
-        for (int i = 0; i < 7; i++) // check if opponent can make a double move opportunity (block if so)
+        for (int i = 0; i < possibleMoves.size(); i++) // remove moves that will give opponent double chance
+        {
+            if (moveGivesDoubleChance(gameBoard, engineNumber, opponentNumber, possibleMoves.get(i)))
+            {
+                possibleMoves.remove(i);
+                i--;
+            }
+        }
+
+        if (opponentDouble != -1 && possibleMoves.contains(opponentDouble)) // check if opponent can make a double (same directions) on next move (block if so)
+        {
+            return opponentDouble;
+        }
+
+        for (int i = 0; i < 7; i++) // check if opponent can make a double win opportunity (different directions) (block if so)
         {
             if (moveCausesDoubleWin(gameBoard, opponentNumber, i))
             {
@@ -68,6 +72,32 @@ public class ConnectFourEngine {
                 {
                     return i;
                 }
+            }
+        }
+
+        for (int i = 0; i < possibleMoves.size(); i++) // check for forced block leading to opponent win
+        {
+            if (moveGivesWinChance(gameBoard, opponentNumber, opponentNumber, i))
+            {
+                int[][] gameBoardCopy = copyGameBoard(gameBoard);
+
+                if (dropPiece(gameBoardCopy, opponentNumber, possibleMoves.get(i)))
+                {
+                    move(gameBoardCopy, engineNumber);
+
+                    if (checkPossibleWin(gameBoardCopy, opponentNumber) >= 0)
+                    {
+                        return possibleMoves.get(i);
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < possibleMoves.size(); i++) // check if any possible move gives engine a chance
+        {
+            if (moveGivesWinChance(gameBoard, engineNumber, engineNumber, possibleMoves.get(i)) || moveGivesDoubleChance(gameBoard, engineNumber, engineNumber, possibleMoves.get(i)))
+            {
+                return possibleMoves.get(i);
             }
         }
 
@@ -177,13 +207,30 @@ public class ConnectFourEngine {
         return false;
     }
 
-    private static boolean moveGivesChance(int[][] gameBoard, int engine, int player, int col)
+    private static boolean moveGivesWinChance(int[][] gameBoard, int dropper, int player, int col)
+    {
+        int[][] gameBoardCopy = copyGameBoard(gameBoard);
+            
+        if (dropPiece(gameBoardCopy, dropper, col))
+        {
+            if (checkPossibleWin(gameBoardCopy, player) == -1)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean moveGivesDoubleChance(int[][] gameBoard, int engine, int player, int col)
     {
         int[][] gameBoardCopy = copyGameBoard(gameBoard);
             
         if (dropPiece(gameBoardCopy, engine, col))
         {
-            if (checkPossibleWin(gameBoardCopy, player) == -1 && checkPossibleDouble(gameBoardCopy, player) == -1)
+            if (checkPossibleDouble(gameBoardCopy, player) == -1)
             {
                 return false;
             }
@@ -526,9 +573,9 @@ public class ConnectFourEngine {
         {
             for (int j = 6; j >= 0; j--)
             {
-                    if (i - 3 >= 0 && j - 3 >= 0)
+                    if (i - 4 >= 0 && j - 4 >= 0)
                     {
-                        for (int k = 0; k < 4; k++)
+                        for (int k = 0; k < 5; k++)
                         {
                             if (gameBoard[i - k][j - k] == player)
                             {
