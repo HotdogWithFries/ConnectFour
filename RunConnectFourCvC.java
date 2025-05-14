@@ -25,7 +25,7 @@ public class RunConnectFourCvC{
             while(!win && !game.isFull()){
                 count++;
                 if(count%2+1==human){
-                    move = ConnectFourEngine.move(game.getGameBoard(), count%2+1);
+                    move = TannerCantwellConnectFour.move(game.getGameBoard(), count%2+1);
                     if(!game.drop(count%2+1,move)){
                         if (printMoves) 
                         {

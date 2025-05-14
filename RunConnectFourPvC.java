@@ -21,7 +21,7 @@ public class RunConnectFourPvC{
                   move = input.nextInt();
                 }
             }else{
-                move = ConnectFourEngine.move(game.getGameBoard(), count%2+1);
+                move = TannerCantwellConnectFour.move(game.getGameBoard(), count%2+1);
                 if(!game.drop(count%2+1,move)){
                     System.out.println("Computer makes invalid move. Human wins.");
                     winner = (1+count)%2+1;

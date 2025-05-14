@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class ConnectFourEngine {
+public class TannerCantwellConnectFour {
 
     public static int move(int[][] gameBoard, int turn)
     {
