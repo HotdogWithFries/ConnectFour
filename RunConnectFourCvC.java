@@ -21,10 +21,10 @@ public class RunConnectFourCvC{
         for (int i = 0; i < simulations; i++)
         {
             ConnectFour game = new ConnectFour();
-            int human = (int) (Math.random() * 2) + 1;
+            int engine = (int) (Math.random() * 2) + 1;
             while(!win && !game.isFull()){
                 count++;
-                if(count%2+1==human){
+                if(count%2+1==engine){
                     move = TannerCantwellConnectFour.move(game.getGameBoard(), count%2+1);
                     if(!game.drop(count%2+1,move)){
                         if (printMoves) 
@@ -55,7 +55,7 @@ public class RunConnectFourCvC{
                 winner = game.determineWin();
                 win = winner != 0;
 
-                if (stopAtEngineLoss && winner == human % 2 + 1)
+                if (stopAtEngineLoss && winner == engine % 2 + 1)
                 {
                     i = simulations;
                     break;
@@ -71,10 +71,10 @@ public class RunConnectFourCvC{
                 }
             }
 
-            if (winner == human)
+            if (winner == engine)
             {
                 engineWins++;
-            } else if (winner == human % 2 + 1) {
+            } else if (winner == engine % 2 + 1) {
                 opponentWins++;
             } else {
                 ties++;
