@@ -36,7 +36,7 @@ public class RunConnectFourCvC{
                         break;
                     }
                 }else{
-                    move = luBake.jorker(game.getGameBoard(), count%2+1);
+                    move = TestEngine.move(game.getGameBoard(), count%2+1);
                     if(!game.drop(count%2+1,move)){
                         if (printMoves)
                         {
