@@ -21,7 +21,7 @@ public class RunConnectFourCvC{
         for (int i = 0; i < simulations; i++)
         {
             ConnectFour game = new ConnectFour();
-            int engine = (int) (Math.random() * 2) + 1;
+            int engine = 2;
             while(!win && !game.isFull()){
                 count++;
                 if(count%2+1==engine){
@@ -36,7 +36,7 @@ public class RunConnectFourCvC{
                         break;
                     }
                 }else{
-                    move = TestEngine.move(game.getGameBoard(), count%2+1);
+                    move = LukeBaker.move(game.getGameBoard(), count%2+1);
                     if(!game.drop(count%2+1,move)){
                         if (printMoves)
                         {

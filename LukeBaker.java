@@ -1,6 +1,6 @@
-public class luBake{
+public class LukeBaker{
     
-    public static int jorker(int[][]g, int m){
+    public static int move(int[][]g, int m){
         if(g[5][3] == m%2+1 && g[5][4] == 0){
             return 4;
         }
@@ -39,9 +39,10 @@ public class luBake{
                 return k;
             }
         }
-
+        int bestMove = -1;
+        int highPoints = 0;
         for(int w=0; w<7; w++){
-            int broDude = (int)(Math.random()*7);
+            int points = 0;
             for(int k=0; k<7; k++){
                 ConnectFour game = new ConnectFour();
                 for(int i=g.length-1; i>=0; i--){
@@ -53,31 +54,45 @@ public class luBake{
                         }
                     }
                 }
-                if(game.drop(m,broDude)){
-                    if(game.drop(m%2+1, k) && game.determineWin() != m%2+1){
-                        return broDude;
+                if(game.drop(m,w)){
+                    points++;
+                    if(game.drop(m%2+1, k) && game.determineWin() == m%2+1){
+                        points--;
+                    }else if(game.drop(m%2+1, k) && game.determineWin() != m%2+1){
+                        points++;
                     }
-                }
-                
-                
-            }
-        }
-        ConnectFour gamer = new ConnectFour();
-        for(int k=0; k<7; k++){
-            for(int i=g.length-1; i>=0; i--){
-                for(int j=g[i].length-1; j>=0; j--){
-                    if(g[i][j] == 1){
-                        gamer.drop(1,j);
-                    }else if(g[i][j] == 2){
-                        gamer.drop(2,j);
+                    if(points > highPoints){
+                        highPoints = points;
+                        bestMove = w;
                     }
                 }
             }
         }
-        int skibba = (int) (Math.random()*7);
-        while(!gamer.drop(m,skibba)){
-            skibba = (int) (Math.random()*7);
-        }
-        return skibba;
+        return bestMove;
+        // ConnectFour gamer = new ConnectFour();
+        // for(int k=0; k<7; k++){
+        //     for(int i=g.length-1; i>=0; i--){
+        //         for(int j=g[i].length-1; j>=0; j--){
+        //             if(g[i][j] == 1){
+        //                 gamer.drop(1,j);
+        //             }else if(g[i][j] == 2){
+        //                 gamer.drop(2,j);
+        //             }
+        //         }
+        //     }
+        // }
+        
+        
+        // for(int i=0; i<7; i++){ 
+        //     System.out.println("hey gamer");
+        //     if(gamer.drop(m,i)){
+        //         if(gamer.drop(m%2+1,j) && gamer.determineWin() != m%2+1){
+
+        //         return i;
+        //     }
+        // }
+        // return (int) (Math.random()*7);
+        // }
     }
 }
+

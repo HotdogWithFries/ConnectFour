@@ -2,6 +2,8 @@ import java.util.ArrayList;
 
 public class TannerCantwellConnectFour {
 
+    private static int middlePrioritization = 100; // % chance that middle column is chosen if a possible move
+
     public static int move(int[][] gameBoard, int turn)
     {
         int engineNumber = turn;
@@ -105,7 +107,10 @@ public class TannerCantwellConnectFour {
         {
             if (possibleMoves.contains(3)) // drop in center if available (prioritize center)
             {
-                return 3;
+                if (Math.random() <= middlePrioritization / 100)
+                {
+                    return 3;
+                }
             }
 
             return possibleMoves.get((int)(Math.random() * possibleMoves.size())); // return random move from possibleMoves
