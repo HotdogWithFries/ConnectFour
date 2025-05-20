@@ -21,7 +21,7 @@ public class RunConnectFourCvC{
         for (int i = 0; i < simulations; i++)
         {
             ConnectFour game = new ConnectFour();
-            int engine = 2;
+            int engine = (int) (Math.random() * 2) + 1;
             while(!win && !game.isFull()){
                 count++;
                 if(count%2+1==engine){

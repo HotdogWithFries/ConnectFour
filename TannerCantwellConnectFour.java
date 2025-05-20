@@ -2,10 +2,27 @@ import java.util.ArrayList;
 
 public class TannerCantwellConnectFour {
 
-    private static int middlePrioritization = 100; // % chance that middle column is chosen if a possible move
+    private static int columnToPrioritize = 3;
+    private static int columnPrioritization = 30; // % chance that prioritized column is chosen if a possible move
+
+    private static int[][] previousGameBoard = new int[6][7];
+    private static ArrayList<int[][]> previousGames = new ArrayList<int[][]>();
+    private static int maxPreviousGamesSize = 100;
 
     public static int move(int[][] gameBoard, int turn)
     {
+        if (numZeroes(gameBoard) < numZeroes(previousGameBoard)) // check if new game has started and save previous game board if so
+        {
+            previousGames.add(0, previousGameBoard);
+        }
+
+        if (previousGames.size() == maxPreviousGamesSize) // remove earliest game from previous games if size limit is reached
+        {
+            previousGames.remove(maxPreviousGamesSize - 1);
+        }
+
+        previousGameBoard = gameBoard; // update previous game board
+
         int engineNumber = turn;
         int opponentNumber = turn % 2 + 1;
 
@@ -105,11 +122,11 @@ public class TannerCantwellConnectFour {
 
         if (possibleMoves.size() > 0)
         {
-            if (possibleMoves.contains(3)) // drop in center if available (prioritize center)
+            if (possibleMoves.contains(columnToPrioritize)) // drop in prioritized column if available (prioritize center)
             {
-                if (Math.random() <= middlePrioritization / 100)
+                if (Math.random() <= columnPrioritization / 100)
                 {
-                    return 3;
+                    return columnToPrioritize;
                 }
             }
 
@@ -646,5 +663,23 @@ public class TannerCantwellConnectFour {
         }
 
         return false;
+    }
+
+    private static int numZeroes(int[][] gameBoard)
+    {
+        int count = 0;
+
+        for (int i = 0; i < gameBoard.length; i++)
+        {
+            for (int j = 0; j < gameBoard[i].length; j++)
+            {
+                if (gameBoard[i][j] == 0)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
     }
 }
