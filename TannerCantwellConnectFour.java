@@ -3,22 +3,45 @@ import java.util.ArrayList;
 public class TannerCantwellConnectFour {
 
     private static int columnToPrioritize = 3;
-    private static int columnPrioritization = 30; // % chance that prioritized column is chosen if a possible move
+    private static int columnPrioritization = 100; // % chance that prioritized column is chosen if a possible move
 
     private static int[][] previousGameBoard = new int[6][7];
     private static ArrayList<int[][]> previousGames = new ArrayList<int[][]>();
-    private static int maxPreviousGamesSize = 100;
+    private static int maxPreviousGamesSize = 3;
+
+    private static int earlyGameColumnToPrioritize = 3;
+    private static int earlyGameColumnPrioritization = 100;
+
+    private static int earlyGameThreshold = 43; // minimum number of empty spaces for the game to be considered "early game" (43+ -> repeated win system and early game adjustments disabled)
 
     public static int move(int[][] gameBoard, int turn)
     {
-        if (numZeroes(gameBoard) < numZeroes(previousGameBoard)) // check if new game has started and save previous game board if so
+        if (numZeroes(gameBoard) >= 41) // check if new game has started and save previous game board if so
         {
             previousGames.add(0, previousGameBoard);
         }
 
-        if (previousGames.size() == maxPreviousGamesSize) // remove earliest game from previous games if size limit is reached
+        if (previousGames.size() > maxPreviousGamesSize) // remove earliest game from previous games if size limit is reached
         {
             previousGames.remove(maxPreviousGamesSize - 1);
+        }
+
+        if (sameGamePlayed(gameBoard))
+        {
+            //System.out.println(previousGames.size() + 1 + " | " + gameBoard);
+            earlyGameColumnToPrioritize = (int) (Math.random() * 7);
+            earlyGameColumnPrioritization = (int) (Math.random() * 51) + 50;
+
+            previousGames = new ArrayList<int[][]>();
+        }
+
+        if (numZeroes(gameBoard) >= earlyGameThreshold) // check if game is in early game as defined by threshold
+        {
+            columnToPrioritize = earlyGameColumnToPrioritize;
+            columnPrioritization = earlyGameColumnPrioritization;
+        } else {
+            columnToPrioritize = 3;
+            columnPrioritization = 100;
         }
 
         previousGameBoard = gameBoard; // update previous game board
@@ -63,7 +86,7 @@ public class TannerCantwellConnectFour {
 
         for (int i = 0; i < possibleMoves.size(); i++) // check if any possible move gives engine a double win opportunity (different directions)
         {
-            if (moveCausesDoubleWin(gameBoard, engineNumber, i))
+            if (moveCausesDoubleWin(gameBoard, engineNumber, engineNumber, i))
             {
                 return possibleMoves.get(i);
             }
@@ -78,6 +101,24 @@ public class TannerCantwellConnectFour {
             }
         }
 
+        for (int i = 0; i < possibleMoves.size(); i++) //remove moves that give opponent chance to create a double win
+        {
+            int[][] gameBoardCopy = copyGameBoard(gameBoard);
+
+            if (dropPiece(gameBoardCopy, engineNumber, possibleMoves.get(i)))
+            {
+                for (int j = 0; j < 7; j++)
+                {
+                    if ((moveCausesDoubleWin(gameBoardCopy, opponentDouble, opponentNumber, j) || moveGivesDoubleChance(gameBoardCopy, opponentNumber, opponentNumber, j)) && gameBoardCopy[0][j] == 0)
+                    {
+                        possibleMoves.remove(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+
         if (opponentDouble != -1 && possibleMoves.contains(opponentDouble)) // check if opponent can make a double (same directions) on next move (block if so)
         {
             return opponentDouble;
@@ -85,7 +126,7 @@ public class TannerCantwellConnectFour {
 
         for (int i = 0; i < 7; i++) // check if opponent can make a double win opportunity (different directions) (block if so)
         {
-            if (moveCausesDoubleWin(gameBoard, opponentNumber, i))
+            if (moveCausesDoubleWin(gameBoard, opponentNumber, opponentNumber, i))
             {
                 if (possibleMoves.contains(i))
                 {
@@ -122,7 +163,7 @@ public class TannerCantwellConnectFour {
 
         if (possibleMoves.size() > 0)
         {
-            if (possibleMoves.contains(columnToPrioritize)) // drop in prioritized column if available (prioritize center)
+            if (possibleMoves.contains(columnToPrioritize)) // drop in prioritized column if available
             {
                 if (Math.random() <= columnPrioritization / 100)
                 {
@@ -246,11 +287,11 @@ public class TannerCantwellConnectFour {
         return false;
     }
 
-    private static boolean moveGivesDoubleChance(int[][] gameBoard, int engine, int player, int col)
+    private static boolean moveGivesDoubleChance(int[][] gameBoard, int dropper, int player, int col)
     {
         int[][] gameBoardCopy = copyGameBoard(gameBoard);
             
-        if (dropPiece(gameBoardCopy, engine, col))
+        if (dropPiece(gameBoardCopy, dropper, col))
         {
             if (checkPossibleDouble(gameBoardCopy, player) == -1)
             {
@@ -263,13 +304,13 @@ public class TannerCantwellConnectFour {
         return false;
     }
 
-    private static boolean moveCausesDoubleWin(int[][] gameBoard, int player, int col)
+    private static boolean moveCausesDoubleWin(int[][] gameBoard, int dropper, int player, int col)
     {
         int initialWins = numberWins(gameBoard, player);
 
         int[][] gameBoardCopy = copyGameBoard(gameBoard);
 
-        if (dropPiece(gameBoardCopy, player, col))
+        if (dropPiece(gameBoardCopy, dropper, col))
         {
             if (numberWins(gameBoardCopy, player) - initialWins >= 2)
             {
@@ -681,5 +722,38 @@ public class TannerCantwellConnectFour {
         }
 
         return count;
+    }
+
+    private static boolean sameGamePlayed(int[][] gameBoard)
+    {
+        boolean outerLoopBreak = false;
+
+        for (int i = 0; i < previousGames.size(); i++)
+        {
+            for (int j = 0; j < previousGames.get(i).length; j++)
+            {
+                for(int k = 0; k < previousGames.get(i)[j].length; k++)
+                {
+                    if (previousGames.get(i)[j][k] != gameBoard[j][k])
+                    {
+                        outerLoopBreak = true;
+                        break;
+                    }
+                }
+
+                if (outerLoopBreak)
+                {
+                    outerLoopBreak = false;
+                    break;
+                }
+
+                if (j == previousGames.get(i).length - 1)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
