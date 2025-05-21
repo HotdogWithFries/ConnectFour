@@ -706,6 +706,8 @@ public class TannerCantwellConnectFour {
         return false;
     }
 
+    // other
+
     private static int numZeroes(int[][] gameBoard)
     {
         int count = 0;
